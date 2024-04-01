@@ -876,7 +876,8 @@ class AudioPlayer {
           }
           await _proxy.start();
         }
-        throw PlayerException(int.parse(e.code), e.message);
+        throw PlayerException(int.parse(e.code), e.message,
+            (e.details as Map<dynamic, dynamic>?)?.cast<String, dynamic>());
       } on FormatException catch (_) {
         if (e.code == 'abort') {
           throw PlayerInterruptedException(e.message);
@@ -1530,7 +1531,13 @@ class PlayerException implements Exception {
   /// is provided.
   final String? message;
 
-  PlayerException(this.code, this.message);
+  /// On Android/iOS/macOS, contains details of the error. For errors associated
+  /// with a particular audio source, the `"index"` key maps to the index of the
+  /// audio source in the sequence.
+  final Map<String, dynamic> details;
+
+  PlayerException(this.code, this.message, [Map<String, dynamic>? details])
+      : details = details ?? <String, dynamic>{};
 
   @override
   String toString() => "($code) $message";
